@@ -1,0 +1,1186 @@
+openapi: 3.0.3
+info:
+  title: WASAText
+  description: |-
+    The user is presented with a list of conversations with other users or with groups, sorted in reverse
+    chronological order. Each element in the list must display the username of the other person or the
+    group name, the user profile photo or the group photo, the date and time of the latest message,
+    the preview (snippet) of the text message, or an icon for a photo message. The user can start a new
+    conversation with any other user of WASAText, and this conversation will automatically be added
+    to the list. The user can search for other users via the username and see all the existing WASAText
+    usernames.
+    The user can create a new group with any number of other WASAText users to start a conversation.
+    Group members can add other users to the group, but users cannot join groups on their own or even
+    see groups they aren’t a part of. Additionally, users have the option to leave a group at any time.
+    The user can open a conversation to view all exchanged messages, displayed in reverse chronological
+    order. Each message includes the timestamp, the content (whether text or photo), and the sender’s
+    username for received messages, or one/two checkmarks to indicate the status of sent messages. Any
+    reactions (comments) on messages are also displayed, along with the names of the users who posted
+    them.
+    One checkmark indicates that the message has been received by the recipient (by all the recipients
+    for groups) in their conversation list. Two checkmarks mean that the message has been read by the
+    recipient (by all the recipients for groups) within the conversation itself.
+    The user can send a new message, reply to an existing one, forward a message, and delete any sent
+    messages. Users can also react to messages (a.k.a. comment them) with an emoticon, and delete their
+    reactions at any time (a.k.a. uncomment).
+    A user can log in simply by entering their username. For more information, refer to the “Simplified
+    Login” section. Users also have the ability to update their name, provided the new name is not already
+    in use by someone else.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5173
+tags:
+  - name: login
+    description: Operations related to login.
+  - name: chat
+    description: Operations related to chat.
+  - name: message
+    description: Operations related to messages.
+  - name: user
+    description: Operations related to user management.
+
+paths:
+  /session:
+    post:
+      tags: ["login"]
+      summary: Logs in the user
+      description: |-
+        If the user does not exist, it will be created,
+        and an identifier is returned.
+        If the user exists, the user identifier is returned.
+      operationId: doLogin
+      requestBody:
+        description: Login request body
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Object containing username for login.
+              properties:
+                username:
+                  $ref: "#/components/schemas/Username"
+              required:
+                - username
+      responses:
+        '201':
+          description: User log-in action successful
+          content:
+            application/json:
+              schema:
+                type: object
+                description: id and photo of the user logged in.
+                properties:
+                  userid:
+                    $ref: "#/components/schemas/UserId"
+                  photo:
+                    $ref: "#/components/schemas/Photo"
+                required:
+                  - userid
+                  - photo
+              example:
+                userid: 1
+                photo: "https://example.com/photo.jpg"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /newchat:
+    post:
+      tags: ["chat"]
+      summary: Starts a new chat or group
+      description: |-
+        With a list of usernames, the user can start a new chat or group.
+        If there are more than two usernames, a group is created and the photos
+        are set as the ones in input.
+      operationId: createChat
+      requestBody:
+        description: List of usernames to create a chat with, and a name and photo for the group (opt).
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatCreation"
+      responses:
+        '201':
+          description: Chat created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: New chat and message id.
+                properties:
+                  chatid:
+                    $ref: "#/components/schemas/ChatId"
+                  messageid:
+                    $ref: "#/components/schemas/MessageId"
+                required:
+                  - chatid
+                  - messageid
+              example:
+                chatid: 1
+                messageid: 100
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /chats:
+    get:
+      security:
+        - bearerAuth: []
+      tags: ["chat"]
+      summary: Gets the chat that the user is part of
+      description: |-
+        Through the chat id, the user can get all the chat that he is part of.
+      operationId: getMyConversations
+      responses:
+        '200':
+          description: Chat retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Chats of a user.
+                properties:
+                  username:
+                    $ref: "#/components/schemas/Username"
+                  chatList:
+                    description: Array of chats.
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ChatPreview"
+                    minItems: 0
+                    maxItems: 999
+                required:
+                  - username
+                  - chatList
+              example:
+                username: "user1"
+                chatList: []
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /chats/{chat_id}:
+    parameters:
+      - $ref: "#/components/parameters/ChatId"
+    get:
+      security:
+        - bearerAuth: []
+      tags: ["chat"]
+      summary: Gets the chat associated with the chat id
+      description: |-
+        Returns the chat with all the messages in reverse chronological order.
+      operationId: getConversation
+      responses:
+        '200':
+          description: Chat retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Chat"
+              example:
+                chatid: 1
+                groupName: "group1"
+                groupPhoto: "https://example.com/photo.jpg"
+                messagesList: []
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /chats/{chat_id}/name:
+    parameters:
+      - $ref: "#/components/parameters/ChatId"
+    put:
+      security:
+        - bearerAuth: []
+      tags: ["chat"]
+      summary: Updates the group name
+      description: |-
+        Updates the group name with the new one.
+      operationId: setGroupName
+      requestBody:
+        description: New name for the group.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Object containing the new group name.
+              properties:
+                name:
+                  $ref: "#/components/schemas/GroupName"
+              required:
+                - name
+      responses:
+        '200':
+          description: Chat name updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Confirmation message.
+                properties:
+                  message:
+                    type: string
+                    description: Confirmation message.
+                    pattern: "^.*$"
+                    minLength: 3
+                    maxLength: 25
+              example:
+                message: "Group name updated"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /chats/{chat_id}/photo:
+    parameters:
+      - $ref: "#/components/parameters/ChatId"
+    put:
+      security:
+        - bearerAuth: []
+      tags: ["chat"]
+      summary: Updates the group photo
+      description: |-
+        Updates the group photo with the new one.
+      operationId: setGroupPhoto
+      requestBody:
+        description: New photo for the group.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Object containing the new group photo.
+              properties:
+                photo:
+                  $ref: "#/components/schemas/Photo"
+              required:
+                - photo
+      responses:
+        '200':
+          description: Chat photo updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Confirmation message.
+                properties:
+                  message:
+                    type: string
+                    description: Confirmation message.
+                    pattern: "^.*$"
+                    minLength: 1
+                    maxLength: 999
+              example:
+                message: "Group photo updated"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /chats/{chat_id}/users:
+    parameters:
+      - $ref: "#/components/parameters/ChatId"
+    put:
+      security:
+        - bearerAuth: []
+      tags: ["chat"]
+      summary: Adds users to the group
+      description: |-
+        With a list of usernames, the user can add them to the group.
+      operationId: addToGroup
+      requestBody:
+        description: List of usernames to add to the group.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Object containing the list of usernames.
+              properties:
+                users:
+                  $ref: "#/components/schemas/UsernameList"
+              required:
+                - users
+      responses:
+        '200':
+          description: Users added to the group successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Confirmation message.
+                properties:
+                  message:
+                    type: string
+                    description: Confirmation message.
+                    pattern: "^.*$"
+                    minLength: 1
+                    maxLength: 999
+              example:
+                message: "Users added to group" 
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+    get:
+      security:
+        - bearerAuth: []
+      tags: ["chat"]
+      summary: Get users in the group
+      description: |-
+        Retrieves the list of users in the specified group chat.
+      operationId: getChatUsers
+      responses:
+        '200':
+          description: List of users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                description: List of usernames in the group.
+                items:
+                  $ref: "#/components/schemas/Username"
+                minItems: 0
+                maxItems: 999
+              example:
+                - "user1"
+                - "user2"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /chats/{chat_id}/users/{user_id}:
+    parameters:
+      - $ref: "#/components/parameters/ChatId"
+      - $ref: "#/components/parameters/UserId"
+    delete:
+      security:
+        - bearerAuth: []
+      tags: ["chat"]
+      summary: User leaves the group
+      description: |-
+        The user associated with the user id leaves the group associated with the chat id.
+      operationId: leaveGroup
+      responses:
+        '200':
+          description: Group left successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Confirmation message.
+                properties:
+                  message:
+                    type: string
+                    description: Confirmation message.
+                    pattern: "^.*$"
+                    minLength: 1
+                    maxLength: 999
+              example:
+                message: "User left group"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /users/{user_id}/name:
+    parameters:
+      - $ref: "#/components/parameters/UserId"
+    put:
+      security:
+        - bearerAuth: []
+      tags: ["user"]
+      summary: Updates the user name
+      description: |-
+        Updates the user name with the new one.
+      operationId: setMyUserName
+      requestBody:
+        description: New name for the user.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Object containing the new user name.
+              properties:
+                name:
+                  $ref: "#/components/schemas/Username"
+              required:
+                - name
+      responses:
+        '200':
+          description: User name updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Confirmation message.
+                properties:
+                  message:
+                    type: string
+                    description: Confirmation message.
+                    pattern: "^.*$"
+                    minLength: 1
+                    maxLength: 999
+              example:
+                message: "User name updated"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /users/{user_id}/photo:
+    parameters:
+      - $ref: "#/components/parameters/UserId"
+    put:
+      security:
+        - bearerAuth: []
+      tags: ["user"]
+      summary: Updates the user photo
+      description: |-
+        Updates the user photo with the new one.
+      operationId: setMyPhoto
+      requestBody:
+        description: New photo for the user.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Object containing the new user photo.
+              properties:
+                photo:
+                  $ref: "#/components/schemas/Photo"
+              required:
+                - photo
+      responses:
+        '200':
+          description: User photo updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Confirmation message.
+                properties:
+                  message:
+                    type: string
+                    description: Confirmation message.
+                    pattern: "^.*$"
+                    minLength: 1
+                    maxLength: 999
+              example:
+                message: "User photo updated"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /users:
+    parameters:
+      - $ref: "#/components/parameters/SearchUsers"
+    get:
+      tags: ["user"]
+      summary: Search for users by username
+      description: |-
+        Returns a list of users that match with the username.
+      operationId: searchUsers
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Users that match with the username.
+                properties:
+                  userlist:
+                    description: List of users.
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
+                    minItems: 0
+                    maxItems: 999
+                required:
+                  - userlist
+              example:
+                userlist: []
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /chats/{chat_id}/messages:
+    parameters:
+      - $ref: "#/components/parameters/ChatId"
+    post:
+      security:
+        - bearerAuth: []
+      tags: ["message"]
+      summary: Sends a message to the chat
+      description: |-
+        Sends a message to the chat associated with the chat id.
+      operationId: sendMessage
+      requestBody:
+        description: Message to send.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageToSend"
+      responses:
+        '201':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Message id response.
+                properties:
+                  messageid:
+                    $ref: "#/components/schemas/MessageId"
+                required:
+                  - messageid
+              example:
+                messageid: 100
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /chats/{chat_id}/forwardedmessages:
+    parameters:
+      - $ref: "#/components/parameters/ChatId"
+    post:
+      security:
+        - bearerAuth: []
+      tags: ["message"]
+      summary: Forwards a message to the chat
+      description: |-
+        Forwards a message to the chat associated with the chat id.
+      operationId: forwardMessage
+      requestBody:
+        description: Message to forward.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageToSend"
+      responses:
+        '201':
+          description: Message forwarded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Message id response.
+                properties:
+                  messageid:
+                    $ref: "#/components/schemas/MessageId"
+                required:
+                  - messageid
+              example:
+                messageid: 101
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /chats/{chat_id}/repliedmessages:
+    parameters:
+      - $ref: "#/components/parameters/ChatId"
+    post:
+      security:
+        - bearerAuth: []
+      tags: ["message"]
+      summary: Replies to a message in the chat
+      description: |-
+        Replies to a message in the chat associated with the chat id.
+      operationId: replyMessage
+      requestBody:
+        description: Message to reply.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageReply"
+      responses:
+        '201':
+          description: Message replied successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Message id response.
+                properties:
+                  messageid:
+                    $ref: "#/components/schemas/MessageId"
+                required:
+                  - messageid
+              example:
+                messageid: 102
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /chats/{chat_id}/messages/{message_id}:
+    parameters:
+      - $ref: "#/components/parameters/ChatId"
+      - $ref: "#/components/parameters/MessageId"
+    delete:
+      security:
+        - bearerAuth: []
+      tags: ["message"]
+      summary: Deletes a message in the chat
+      description: |-
+        Deletes a message in the chat associated with the chat id.
+      operationId: deleteMessage
+      responses:
+        '200':
+          description: Message deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Confirmation message.
+                properties:
+                  message:
+                    type: string
+                    description: Confirmation message.
+                    pattern: "^.*$"
+                    minLength: 1
+                    maxLength: 999
+              example:
+                message: "Message deleted"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /chats/{chat_id}/messages/{message_id}/comments:
+    parameters:
+      - $ref: "#/components/parameters/ChatId"
+      - $ref: "#/components/parameters/MessageId"
+    put:
+      security:
+        - bearerAuth: []
+      tags: ["message"]
+      summary: Comments a message in the chat
+      description: |-
+        Comments a message in the chat associated with the chat id.
+      operationId: commentMessage
+      requestBody:
+        description: Comment to the message.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Emoji comment object.
+              properties:
+                emoji:
+                  $ref: "#/components/schemas/Emoji"
+              required:
+                - emoji
+      responses:
+        '200':
+          description: Message commented successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Confirmation message.
+                properties:
+                  message:
+                    type: string
+                    description: Confirmation message.
+                    pattern: "^.*$"
+                    minLength: 1
+                    maxLength: 999
+              example:
+                message: "Message commented"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      security:
+        - bearerAuth: []
+      tags: ["message"]
+      summary: Uncomments a message in the chat
+      description: |-
+        Uncomments a message in the chat associated with the chat id.
+      operationId: uncommentMessage
+      responses:
+        '200':
+          description: Message uncommented successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Confirmation message.
+                properties:
+                  message:
+                    type: string
+                    description: Confirmation message.
+                    pattern: "^.*$"
+                    minLength: 1
+                    maxLength: 999
+              example:
+                message: "Message uncommented"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  parameters:
+    ChatId:
+      name: chat_id
+      in: path
+      description: ID of the chat.
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 2147483647
+        example: 1
+        readOnly: true
+
+    UserId:
+      name: user_id
+      in: path
+      description: ID of the user.
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 2147483647
+        example: 1
+        readOnly: true
+
+    MessageId:
+      name: message_id
+      in: path
+      description: ID of the message.
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 2147483647
+        example: 1
+        readOnly: true
+
+    SearchUsers:
+      name: search_users
+      in: query
+      description: Username to search for.
+      required: true
+      schema:
+        type: string
+        example: "user1"
+        pattern: "^.*$"
+        minLength: 0
+        maxLength: 16
+
+  schemas:
+    Username:
+      title: username
+      description: Username of the user.
+      type: string
+      example: "user1"
+      pattern: "^.*$"
+      minLength: 3
+      maxLength: 16
+
+    UsernameList:
+      title: usernameList
+      description: List of usernames.
+      type: array
+      items:
+        $ref: "#/components/schemas/Username"
+      minItems: 1
+      maxItems: 999
+
+    GroupName:
+      title: groupname
+      description: Name of the group.
+      type: string
+      example: "group1"
+      pattern: "^.*$"
+      minLength: 1
+      maxLength: 25
+
+    Photo:
+      title: photo
+      description: Photo of the user or group.
+      type: string
+      format: url
+      example: "https://example.com/photo.jpg"
+      pattern: "^.*$"
+      minLength: 1
+      maxLength: 999
+
+    UserId:
+      title: userid
+      description: ID of the user.
+      type: integer
+      minimum: 1
+      maximum: 2147483647
+      example: 1
+
+    ChatId:
+      title: chatid
+      description: ID of the chat.
+      type: integer
+      minimum: 1
+      maximum: 2147483647
+      example: 1
+
+    MessageId:
+      title: messageid
+      description: ID of the message.
+      type: integer
+      minimum: 1
+      maximum: 2147483647
+      example: 1
+
+    DateTime:
+      title: datetime
+      description: String representing date and time of the message.
+      type: string
+      format: date-time
+      example: "2021-01-01T00:00:00Z"
+      pattern: "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2}(?:\\.\\d*)?)((-(\\d{2}):(\\d{2})|Z)?)$"
+      minLength: 20
+      maxLength: 30
+
+    TextData:
+      title: textdata
+      description: Text of the message.
+      type: string
+      example: "Hello, how are you?"
+      pattern: "^(.|\\n)*$"
+      minLength: 1
+      maxLength: 999
+
+    Emoji:
+      title: emoji
+      description: Emoji to add as comment to the message.
+      type: string
+      example: "😊"
+      pattern: "^😊$"
+      minLength: 1
+      maxLength: 1
+
+    User:
+      title: user
+      description: User details.
+      type: object
+      properties:
+        userid:
+          $ref: "#/components/schemas/UserId"
+        username:
+          $ref: "#/components/schemas/Username"
+      required:
+        - userid
+        - username
+
+    ChatCreation:
+      title: chatcreation
+      description: Chat creation details.
+      type: object
+      properties:
+        usernameList:
+          $ref: "#/components/schemas/UsernameList"
+        groupName:
+          $ref: "#/components/schemas/GroupName"
+        groupPhoto:
+          $ref: "#/components/schemas/Photo"
+        firstMessage:
+          $ref: "#/components/schemas/MessageToSend"
+      required:
+        - usernameList
+        - firstMessage
+
+    ChatPreview:
+      title: chatpreview
+      description: Chat preview.
+      type: object
+      properties:
+        chatid:
+          $ref: "#/components/schemas/ChatId"
+        groupName:
+          $ref: "#/components/schemas/GroupName"
+        groupPhoto:
+          $ref: "#/components/schemas/Photo"
+        lastMessage:
+          $ref: "#/components/schemas/MessagePreview"
+      required:
+        - chatid
+        - groupName
+        - groupPhoto
+        - lastMessage
+
+    Chat:
+      title: chat
+      description: Chat details.
+      type: object
+      properties:
+        chatid:
+          $ref: "#/components/schemas/ChatId"
+        groupName:
+          $ref: "#/components/schemas/GroupName"
+        groupPhoto:
+          $ref: "#/components/schemas/Photo"
+        messagesList:
+          description: Array of messages.
+          type: array
+          items:
+            $ref: "#/components/schemas/Message"
+          minItems: 0
+          maxItems: 999
+      required:
+        - chatid
+        - groupName
+        - groupPhoto
+        - messagesList
+
+    MessageToSend:
+      title: messagetosend
+      description: Message to send.
+      type: object
+      properties:
+        text:
+          $ref: "#/components/schemas/TextData"
+        photo:
+          $ref: "#/components/schemas/Photo"
+      required:
+        - text
+
+    MessageReply:
+      title: messagereply
+      description: Message to reply.
+      type: object
+      properties:
+        text:
+          $ref: "#/components/schemas/TextData"
+        photo:
+          $ref: "#/components/schemas/Photo"
+        repliedMessageId:
+          $ref: "#/components/schemas/MessageId"
+      required:
+        - text
+        - repliedMessageId
+
+    MessagePreview:
+      title: messagepreview
+      description: Message preview.
+      type: object
+      properties:
+        messageId:
+          $ref: "#/components/schemas/MessageId"
+        userId:
+          $ref: "#/components/schemas/UserId"
+        chatId:
+          $ref: "#/components/schemas/ChatId"
+        datetime:
+          $ref: "#/components/schemas/DateTime"
+        text:
+          $ref: "#/components/schemas/TextData"
+        photo:
+          $ref: "#/components/schemas/Photo"
+      required:
+        - messageId
+        - userId
+        - chatId
+        - datetime
+        - text
+
+    Message:
+      title: message
+      description: Message details.
+      type: object
+      properties:
+        messageId:
+          $ref: "#/components/schemas/MessageId"
+        userId:
+          $ref: "#/components/schemas/UserId"
+        chatId:
+          $ref: "#/components/schemas/ChatId"
+        datetime:
+          $ref: "#/components/schemas/DateTime"
+        isForwarded:
+          description: True if the message is forwarded.
+          type: boolean
+          example: false
+        text:
+          $ref: "#/components/schemas/TextData"
+        photo:
+          $ref: "#/components/schemas/Photo"
+        commentsList:
+          description: Array of comments.
+          type: array
+          items:
+            $ref: "#/components/schemas/Comment"
+          minItems: 0
+          maxItems: 999
+      required:
+        - messageId
+        - userId
+        - chatId
+        - datetime
+        - isForwarded
+        - text
+        - commentsList
+
+    Comment:
+      title: comment
+      description: Comment details.
+      type: object
+      properties:
+        messageId:
+          $ref: "#/components/schemas/MessageId"
+        userId:
+          $ref: "#/components/schemas/UserId"
+        emoji:
+          $ref: "#/components/schemas/Emoji"
+      required:
+        - messageId
+        - userId
+        - emoji
+
+  responses:
+    BadRequest:
+      description: The request was not compliant with the documentation.
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Error response object.
+            properties:
+              error:
+                type: string
+                description: Error message.
+                pattern: "^.*$"
+                minLength: 1
+                maxLength: 200
+          example:
+            error: "Bad Request"
+    Unauthorized:
+      description: Access token is missing or invalid.
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Error response object.
+            properties:
+              error:
+                type: string
+                description: Error message.
+                pattern: "^.*$"
+                minLength: 1
+                maxLength: 200
+          example:
+            error: "Unauthorized"
+    NotFound:
+      description: The server cannot find the requested resource.
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Error response object.
+            properties:
+              error:
+                type: string
+                description: Error message.
+                pattern: "^.*$"
+                minLength: 1
+                maxLength: 200
+          example:
+            error: "Not Found"
+    InternalServerError:
+      description: The server encountered an unexpected condition that prevented it from fulfilling the request.
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Error response object.
+            properties:
+              error:
+                type: string
+                description: Error message.
+                pattern: "^.*$"
+                minLength: 1
+                maxLength: 200
+          example:
+            error: "Internal Server Error"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
