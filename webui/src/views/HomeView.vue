@@ -668,7 +668,7 @@
             </div>
             <!-- Main chat screen -->
             <div v-if="!mainchat" class="no-chat-message">
-                <h2 style="color: whitesmoke; text-align: center; margin-top: 20px;">No chat selected. Please select a chat to start messaging.</h2>
+                <h2 style="color: black; text-align: center; margin-top: 20px;">No chat selected. Please select a chat to start messaging.</h2>
             </div>
             <div class="main-chat" v-if="chatshown && mainchat">
                 <!-- Topbar in mainchat -->
@@ -951,9 +951,9 @@
 
 <style>
     body {
-        background-color: #0e1621;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: white;
+        background: linear-gradient(135deg, #ffffff, #e6f0ff);
+        font-family: 'Trebuchet MS', Tahoma, Geneva, Verdana, sans-serif;
+        color: #1a1a1a;
         margin: 0;
     }
 
@@ -961,7 +961,7 @@
     .img-circular {
         border-radius: 50%;
         object-fit: cover;
-        box-shadow: black 0 0 5px;
+        box-shadow: rgba(0,0,0,0.3) 0 0 6px;
     }
 
     /* All page */
@@ -972,21 +972,22 @@
 
     /* Navbar */
     .navbar-dark {
-        background-color: #1f2c3d;
+        background-color: #2f65d9;
         position: relative;
         display: flex;
         align-items: center;
         height: 60px;
         width: 100%;
-        box-shadow: black 0 0 1px;
+        box-shadow: rgba(0,0,0,0.3) 0 0 4px;
+        color: white;
     }
 
     /* Info of user */
     .user-info {
         margin-left: 10px;
-        color: whitesmoke;
-        background-color: #2a394200;
-        box-shadow: rgb(0, 0, 0) 0 0 8px;
+        color: #1a1a1a;
+        background-color: #f5f9ff;
+        box-shadow: rgba(0,0,0,0.2) 0 0 6px;
         border-radius: 20px;
         height: 36px;
         display: flex;
@@ -1004,12 +1005,12 @@
         margin: 0;
         height: 36px;
         border-radius: 20px;
-        background-color: #2a3942;
+        background-color: #dce9ff;
         display: flex;
         flex-direction: row;
         z-index: 100;
         padding: 0 10px;
-        box-shadow: rgb(0, 0, 0) 0 0 8px;
+        box-shadow: rgba(0,0,0,0.25) 0 0 6px;
     }
     .searchbox-userlist {
         position: relative;
@@ -1018,7 +1019,7 @@
         width: 200px;
     }
     .searchbox-user {
-        color: whitesmoke;
+        color: #2d2d2d;
         width: 100%;
         border: none;
         background-color: transparent;
@@ -1029,28 +1030,28 @@
     }
     .searched-dropdown {
         position: relative;
-        background-color: #1f2c3d;
+        background-color: #f0f6ff;
         width: 200px;
         max-height: 120px;
         overflow-y: auto;
         border-radius: 10px;
         margin-top: 5px;
-        box-shadow: rgb(0, 0, 0) 0 0 8px;
+        box-shadow: rgba(0,0,0,0.15) 0 0 6px;
     }
     .searched-dropdown ul {
         list-style: none;
         padding: 0;
         margin: 0;
-        color: whitesmoke;
+        color: #1a1a1a;
     }
     .searched-dropdown li {
         height: 40px;
         padding: 10px;
         cursor: pointer;
-        box-shadow: black 0 0 1px;
+        box-shadow: rgba(0,0,0,0.1) 0 0 1px;
     }
     .searched-dropdown li:hover {
-        background-color: #2a3942;
+        background-color: #bcd6ff;
     }
 
     /* Main screen */
@@ -1063,10 +1064,10 @@
 
     /* Sidebar */
     .sidebar-chats {
-        background-color: #1f2c3d;
+        background-color: #4a90e2;
         height: 100%;
         width: 350px;
-        box-shadow: rgb(0, 0, 0) 0 0 15px;
+        box-shadow: rgba(0,0,0,0.2) 0 0 12px;
     }
     .sidebar-buttons {
         width: 100%;
@@ -1075,7 +1076,7 @@
         align-items: center;
         justify-content: space-around;
         padding: 0 10px;
-        box-shadow: black 0 0 1px;
+        box-shadow: rgba(0,0,0,0.1) 0 0 1px;
     }
     .chats-dropdown {
         width: 100%;
@@ -1086,7 +1087,7 @@
         list-style: none;
         padding: 0;
         margin: 0;
-        color: whitesmoke;
+        color: #1a1a1a;
     }
     .chats-dropdown li {
         padding: 10px;
@@ -1094,10 +1095,10 @@
         height: 80px;
         display: flex;
         align-items: center;
-        box-shadow: black 0 0 1px;
+        border-bottom: 1px solid #e6e6e6;
     }
     .chats-dropdown li:hover {
-        background-color: #2a3942;
+        background-color: #e6f0ff;
     }
     .chatpreview {
         width: 100%;
@@ -1132,7 +1133,7 @@
     .main-chat {
         height: 100%;
         width: calc(100% - 350px);
-        background-color: #0e1621;
+        background: linear-gradient(135deg, #f7fbff, #e6f0ff);
     }
 
     /* no chat message */
@@ -1142,7 +1143,7 @@
         align-items: center;
         height: 100%;
         width: 100%;
-        color: #ffffff;
+        color: #555;
         font-size: 1rem;
         font-style: italic;
         border-radius: 10px;
@@ -1154,11 +1155,12 @@
     .topbar-chat {
         display: flex;
         align-items: center;
-        background-color: #1f2c3d;
+        background-color: #4a90e2;
         height: 60px;
         width: 100%;
         position: relative;
-        box-shadow: black 0 0 1px;
+        box-shadow: rgba(0,0,0,0.2) 0 0 3px;
+        color: white;
     }
     .backarrow {
         margin-left: 10px;
@@ -1171,28 +1173,28 @@
     .leavebutton {
         position: absolute;
         right: 25px;
-        background-color: #f44336;
-        color: whitesmoke;
+        background-color: #ff4d4d;
+        color: white;
         width: 120px;
         border-radius: 20px;
-        border-color: #000000;
+        border: none;
     }
     .leavebutton:hover {
-        background-color: #b40c00;
+        background-color: #d93636;
     }
 
     /* Group Members button */
     .group-members {
         position: absolute;
         left: 300px;
-        background-color: #2a3942;
-        color: whitesmoke;
+        background-color: #2f65d9;
+        color: white;
         width: 120px;
         border-radius: 20px;
-        border-color: #000000;
+        border: none;
     }
     .group-members:hover {
-        background-color: #1f2c3d;
+        background-color: #204a9c;
     }
 
     /* Stile per la lista dei membri del gruppo */
@@ -1201,22 +1203,19 @@
         overflow-y: auto;
         margin-top: 10px;
     }
-
     .group-members-list ul {
         list-style: none;
         padding: 0;
         margin: 0;
-        color: whitesmoke;
+        color: #1a1a1a;
     }
-
     .group-members-list li {
         padding: 10px;
         cursor: pointer;
-        box-shadow: black 0 0 1px;
+        box-shadow: rgba(0,0,0,0.1) 0 0 1px;
     }
-
     .group-members-list li:hover {
-        background-color: #2a3942;
+        background-color: #d0e5ff;
     }
 
     /* Message screen */
@@ -1237,7 +1236,7 @@
     .messagelist ul {
         list-style: none;
         padding: 0;
-        color: whitesmoke;
+        color: #1a1a1a;
     }
     .messagelist li {
         padding: 5px;
@@ -1247,7 +1246,7 @@
     /* Box containing each message */
     .messagebox-you {
         width: max-content;
-        background-color: #25d366;
+        background-color: #4ade80;
         border-radius: 20px;
         border-top-right-radius: 0;
         margin-right: 20px;
@@ -1256,10 +1255,11 @@
         flex-direction: column;
         align-items: end;
         padding: 10px;
+        color: #0d220d;
     }
     .messagebox-other {
         width: max-content;
-        background-color: #2a3942;
+        background-color: #dce9ff;
         border-radius: 20px;
         border-top-left-radius: 0;
         margin-left: 20px;
@@ -1268,6 +1268,7 @@
         flex-direction: column;
         align-items: start;
         padding: 10px;
+        color: #0f1a33;
     }
     .forwarded-info {
         margin-left: 15px;
@@ -1278,11 +1279,13 @@
         margin-right: 15px;
         word-break: break-word;
         font-size: 0.875rem;
-        font-family: sans-serif;
+        font-family: 'Trebuchet MS', sans-serif;
     }
     .messagebox-username {
         margin-left: 15px;
         margin-right: 15px;
+        font-weight: bold;
+        color: #0f1a33;
     }
     .messagebox-time {
         display: flex;
@@ -1290,6 +1293,8 @@
         align-items: center;
         width: 100%;
         padding-right: 15px;
+        font-size: 0.75rem;
+        color: #444;
     }
     .messagebox-checkmark {
         margin-right: 5px;
@@ -1311,9 +1316,9 @@
         flex-direction: column;
         align-items: center;
         width: 100%;
-        border-top: 2px solid #2a3942;
+        border-top: 2px solid #bcd6ff;
         padding: 10px;
-        background-color: #1f2c3d;
+        background-color: #f0f6ff;
         border-radius: 0 0 20px 20px;
     }
     .emoji-picker {
@@ -1321,7 +1326,7 @@
         flex-wrap: wrap;
         gap: 8px;
         padding: 8px;
-        background: #2a3942;
+        background: #dce9ff;
         border-radius: 8px;
         max-width: 200px;
         margin: 10px;
@@ -1344,7 +1349,7 @@
     .commentlist ul {
         list-style: none;
         padding: 0;
-        color: whitesmoke;
+        color: #1a1a1a;
     }
     .commentlist li {
         padding: 5px;
@@ -1360,19 +1365,17 @@
     .bottombar-chat {
         display: flex;
         align-items: center;
-        background-color: #1f2c3d;
+        background-color: #2f65d9;
         height: 60px;
         width: 100%;
         position: relative;
-        box-shadow: black 0 0 1px;
-    }
-    .bottombar-chat img {
-        filter: brightness(0) invert(1);
+        box-shadow: rgba(0,0,0,0.2) 0 0 1px;
+        color: white;
     }
     .message-text {
         height: 36px;
         border-radius: 20px;
-        background-color: #2a3942;
+        background-color: #f0f6ff;
         display: flex;
         align-items: center;
         width: 80%;
@@ -1381,7 +1384,7 @@
     .message-textbox {
         margin-left: 10px;
         margin-right: 10px;
-        color: whitesmoke;
+        color: #1a1a1a;
         background: transparent;
         border: none;
         width: 100%;
@@ -1394,7 +1397,7 @@
         position: absolute;
         top: 0%;
         transform: translateY(-100%);
-        background-color: #1f2c3d;
+        background-color: #e1ecf7;
         border-top-right-radius: 20px;
         display: flex;
         flex-direction: column;
@@ -1404,7 +1407,7 @@
     /* List with users checkbox */
     .users-checkbox {
         position: relative;
-        background-color: #1f2c3d;
+        background-color: #f0f6ff;
         width: 200px;
         max-height: 200px;
         overflow-y: auto;
@@ -1415,7 +1418,7 @@
         list-style: none;
         padding: 0;
         margin: 0;
-        color: whitesmoke;
+        color: #1a1a1a;
     }
     .users-checkbox li {
         height: 40px;
@@ -1423,6 +1426,6 @@
         cursor: pointer;
     }
     .users-checkbox li:hover {
-        background-color: #2a3942;
+        background-color: #bcd6ff;
     }
 </style>

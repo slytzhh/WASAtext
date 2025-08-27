@@ -4,7 +4,7 @@
             return {
                 errormsg: null,
                 username: null
-            }
+            }   
         },
         methods: {
             async login() {
@@ -37,9 +37,9 @@
 
 <style>
     body {
-        background-color: #0e1621; /* Colore di sfondo scuro simile a Telegram */
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Font moderno e leggibile */
-        color: white;
+        background: linear-gradient(135deg, #ffffff, #e6f0ff); /* sfondo chiaro contrastato */
+        font-family: 'Trebuchet MS', Tahoma, Geneva, Verdana, sans-serif; /* font usato prima */
+        color: #1a1a1a;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -53,10 +53,10 @@
         align-items: center;
         width: 400px;
         height: 400px;
-        background-color: rgba(32, 44, 51, 0.8); /* Sfondo semi-trasparente simile a Telegram */
-        border-radius: 15px; /* Bordi arrotondati come WhatsApp */
-        backdrop-filter: blur(10px); /* Effetto di sfocatura */
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Ombreggiatura per profondità */
+        background: rgba(255, 255, 255, 0.85); /* box semitrasparente più leggibile */
+        border-radius: 20px;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
         padding: 20px;
         position: relative;
     }
@@ -64,12 +64,12 @@
     .input-field {
         position: absolute;
         top: 45%;
-        border-radius: 20px;
+        border-radius: 25px;
         width: 70%;
-        padding: 10px;
-        background-color: #1e2a32; /* Colore di sfondo scuro per il campo di input */
-        border: 1px solid #2a3942; /* Bordo sottile come Telegram */
-        color: white;
+        padding: 12px;
+        background-color: #f0f6ff; 
+        border: 1px solid #bcd6ff;
+        color: #1a1a1a;
         font-size: 16px;
     }
 
@@ -78,26 +78,30 @@
         border: none;
         outline: none;
         width: 100%;
-        color: white; /* Testo bianco per contrasto */
+        color: #1a1a1a;
+        font-size: 16px;
     }
 
     .login-button {
         position: absolute;
         top: 65%;
-        padding: 10px 20px;
-        border-radius: 20px;
+        padding: 12px 20px;
+        border-radius: 25px;
         width: 70%;
         border: none;
         outline: none;
-        background-color: #25d366; /* Verde di WhatsApp per il pulsante */
+        background-color: #2f65d9; /* blu acceso */
         color: white;
         font-size: 16px;
         cursor: pointer;
-        transition: background-color 0.3s ease;
+        font-weight: bold;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
     }
 
     .login-button:hover {
-        background-color: #128c7e; /* Verde più scuro al passaggio del mouse */
+        background-color: #204a9c; /* blu più scuro */
+        transform: scale(1.05);
     }
 
     .logo {
@@ -107,14 +111,15 @@
     }
 
     .title {
-        font-size: 24px;
+        font-size: 26px;
         font-weight: bold;
         margin-bottom: 10px;
-        color: #25d366; /* Colore verde di WhatsApp per il titolo */
+        color: #4ade80; /* verde acceso */
+        text-shadow: 1px 1px 4px rgba(0,0,0,0.2);
     }
 
     .subtitle {
         font-size: 14px;
-        color: #a8b2b9; /* Colore grigio chiaro per il sottotitolo */
+        color: #444;
     }
 </style>
